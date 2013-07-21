@@ -1,0 +1,23 @@
+{
+    "manifest_version": 2,
+
+    "name": "Don't dawdle!",
+    "description": "Don't dawdle! Work!",
+    "version": "0.5",
+
+    "background": {
+        "scripts": ["j/object_manager_v.0.1.js", "j/helper.js", "j/backgrounds.js"]
+    },
+    "options_page": "options.html",
+    "icons": {
+        "128": "i/128.png"
+    },
+
+    "page_action": {
+        "default_icon": "i/128.png",
+        "default_title": "Don't dawdle!",
+        "default_popup": "popup.html"
+    },
+
+    "permissions": ["tabs"]
+}
