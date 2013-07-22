@@ -1,11 +1,11 @@
 chrome.tabs.onUpdated.addListener(function(tabId, changedInfo, tab) {
 
-    chrome.pageAction.show(tabId);
+	if (SB.isBlocked(HJS.getDomain(tab.url))) {
+		chrome.tabs.update(tabId, {"url" : "blocked.html"});
+	}
 
-    if (SB.isBlocked(HJS.getDomain(tab.url))) {
-        chrome.tabs.update(tabId, {
-            "url" : "popup.html"},
-            function () {});
-    }
+	if (tab.url.slice(0,6) !== 'chrome') {
+        chrome.pageAction.show(tabId);
+	}
 });
 

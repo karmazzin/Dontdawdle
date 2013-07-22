@@ -62,5 +62,9 @@ var SB = (function() {
         }
     }
 
+	self.getAll = function() {
+		return _getAllBlocked();
+	}
+
     return self;
 })(SM);

@@ -4,7 +4,8 @@ chrome.windows.getCurrent(function(w) {
         $(document).ready(function(){
             $('#add').click(function(){
 
-                SB.addBlock(HJS.getDomain(t.url))
+                SB.addBlock(HJS.getDomain(t.url));
+                chrome.tabs.update(t.id, {"url" : "blocked.html"});
                 return false;
             });
         });
