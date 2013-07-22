@@ -1,5 +1,5 @@
 $(document).ready(function(){
-	var list = SB.getAll();
+	var list = SB.getAllBlocked();
 	for (var key in list) {
 		$('#blocklist').append('<div>'+ key +' '+'</div>');
 	}

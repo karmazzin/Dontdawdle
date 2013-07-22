@@ -25,45 +25,38 @@ var SM = (function () {
  * @copyright Duane O'Brien 2013
  */
 var SB = (function() {
-    var self = {};
 
-    if (!_getAllBlocked()) {
-        _setAllBlocked({});
-    } else {
-        _blockedList = _getAllBlocked();
-    }
-
-    function _getAllBlocked() {
-        return JSON.parse(SM.get('blocklist'));
-    };
-
-    function _setAllBlocked(list) {
-        SM.put('blocklist',  JSON.stringify(list));
-    }
+	function _setAllBlocked(list) {
+		SM.put('blocklist',  JSON.stringify(list));
+	}
 
     self.isBlocked = function(domain) {
-        _blockedList = _getAllBlocked();
-        return (domain in _blockedList);
+        var blockedList = self.getAllBlocked();
+        return (domain in blockedList);
     }
 
     self.addBlock = function(domain) {
-        _blockedList = _getAllBlocked();
         if (!self.isBlocked(domain)) {
-            _blockedList[domain] = true;
-            _setAllBlocked(_blockedList);
+            var blockedList = self.getAllBlocked();
+            blockedList[domain] = true;
+            _setAllBlocked(blockedList);
         }
     }
 
     self.removeBlock = function(domain) {
-        _blockedList = _getAllBlocked();
         if (self.isBlocked(domain)) {
-            delete _blockedList[domain];
-            _setAllBlocked(_blockedList);
+            var blockedList = self.getAllBlocked();
+            delete blockedList[domain];
+            _setAllBlocked(blockedList);
         }
     }
 
-	self.getAll = function() {
-		return _getAllBlocked();
+	self.getAllBlocked = function() {
+		return JSON.parse(SM.get('blocklist'));
+	}
+
+	if (!self.getAllBlocked()) {
+		_setAllBlocked({});
 	}
 
     return self;
