@@ -3,7 +3,7 @@
 
     "name": "Site blocker. Don't dawdle!",
     "description": "Don't dawdle! Work!",
-    "version": "0.5",
+    "version": "0.6",
 
     "background": {
         "scripts": ["j/object_manager_v.0.1.js", "j/helper.js", "j/backgrounds.js"]
