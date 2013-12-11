@@ -3,12 +3,29 @@
 <head>
 	<meta charset="utf-8">
 	<title>Don't dawdle!</title>
+	<link rel="stylesheet" href="theme/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="theme/bootstrap/css/bootstrap-theme.min.css">
 	<script type="text/javascript" src="j/jquery.js"></script>
 	<script type="text/javascript" src="j/object_manager_v.0.1.js"></script>
 	<script type="text/javascript" src="j/helper.js"></script>
 	<script type="text/javascript" src="j/options.js"></script>
+	<script type="text/javascript" src="theme/bootstrap/js/bootstrap.min.js"></script>
 </head>
 <body>
-	<div id="blocklist"></div>
+
+	<div class="container">
+		<div class="row text-center">
+			<h1>Список заблокированных доменов</h1>
+			<table class="table table-hover table-bordered">
+				<thead>
+					<tr>
+						<td>Домен</td>
+						<td>Действия</td>
+					</tr>
+				</thead>
+				<tbody class="blocked-list"></tbody>
+			</table>
+		</div>
+	</div>
 </body>
 </html>
