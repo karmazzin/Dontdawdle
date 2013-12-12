@@ -2,8 +2,8 @@
     "manifest_version": 2,
 
     "name": "Site blocker. Don't dawdle!",
-    "description": "Don't dawdle! Work!",
-    "version": "0.8",
+    "description": "Блокировщик сайтов \"Не халявь!\"",
+    "version": "1.0",
 
     "background": {
         "scripts": ["j/object_manager_v.0.1.js", "j/helper.js", "j/backgrounds.js"]
