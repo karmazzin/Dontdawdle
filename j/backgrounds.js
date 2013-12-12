@@ -1,6 +1,9 @@
 chrome.tabs.onUpdated.addListener(function(tabId, changedInfo, tab) {
 
-	if (SB.isBlocked(HJS.getDomain(tab.url))) {
+	var domain = HJS.getDomain(tab.url);
+
+	if (SB.isBlocked(domain)) {
+		SM.put('last_domain', domain);
 		chrome.tabs.update(tabId, {"url" : "blocked.html"});
 	}
 
