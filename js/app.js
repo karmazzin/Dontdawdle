@@ -7,14 +7,28 @@
         var vm = this;
 
         vm.url = '';
-
+        Chrome.tabs().then(function(data) {
+            vm.url = data.url;
+        });
 
         vm.lockCurrentUrl = function() {
-//            console.log();
+            console.log(vm.url);
 
         };
     });
 
+    app.factory('Chrome', function($q) {
+        return {
+            tabs: function() {
+                var deferred = $q.defer();
 
+                chrome.tabs.query({currentWindow: true, active: true}, function(tabs) {
+                    deferred.resolve(tabs[0]);
+                });
+
+                return deferred.promise;
+            }
+        };
+    });
 
 })();
