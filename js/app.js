@@ -15,11 +15,11 @@
         vm.lockCurrentUrl = function() {
             Blocker.addBlock(vm.domain);
             Storage.put('last_domain', vm.domain);
-            chrome.tabs.update(tab.id, {"url" : "blocked.html"}); //@TODO вынести в сервис
+            ChromeService.redirect(tab.id, "blocked.html");
         };
     });
 
-    app.factory('ChromeService', function($q) {
+    app.factory('ChromeService', function($q, $window) {
         return {
             tabs: function() {
                 var deferred = $q.defer();
@@ -29,6 +29,10 @@
                 });
 
                 return deferred.promise;
+            },
+            redirect: function(id, url) {
+                chrome.tabs.update(id, {"url" : url});
+                $window.close();
             }
         };
     });
