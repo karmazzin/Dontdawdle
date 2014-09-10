@@ -10,7 +10,6 @@
     <script type="text/javascript" src="js/app.js"></script>
 </head>
 <body ng-controller="PopupController as p">
-<input ng-click="p.lockCurrentUrl()" class="btn btn-sm btn-danger" type="button" value="Заблокировать"><br>
-{{p.url}}
+    <input ng-show="p.domain" ng-click="p.lockCurrentUrl()" class="btn btn-sm btn-danger" type="button" value="Заблокировать"><br>
 </body>
 </html>
