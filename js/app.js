@@ -8,7 +8,7 @@
         var tab = {};
 
         ChromeService.tabs().then(function(data) {
-            tab = data;//@TODO некрасиво
+            tab = data;
             vm.domain = Helper.getDomain(tab.url);
         });
 
@@ -17,6 +17,26 @@
             Storage.put('last_domain', vm.domain);
             ChromeService.redirect(tab.id, "blocked.html");
         };
+    });
+
+    app.controller('LockController', function(ChromeService, Storage, Blocker) {
+        var vm = this;
+        var tab = {};
+
+        ChromeService.tabs().then(function(data) {
+            tab = data;
+        });
+
+        vm.unlockLastDomain = function() {
+            var last_domian = Storage.get('last_domain');
+            Blocker.removeBlock(last_domian);
+            ChromeService.redirect(tab.id, last_domian);
+        };
+
+        vm.redirectToList = function() {
+            ChromeService.redirect(tab.id, "options.html");
+        };
+
     });
 
     app.factory('ChromeService', function($q, $window) {
