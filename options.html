@@ -1,18 +1,16 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="dontdawdle">
 <head>
 	<meta charset="utf-8">
 	<title>Don't dawdle!</title>
-	<link rel="stylesheet" href="theme/bootstrap/css/bootstrap.min.css">
-	<link rel="stylesheet" href="theme/bootstrap/css/bootstrap-theme.min.css">
-	<script type="text/javascript" src="j/jquery.js"></script>
-	<script type="text/javascript" src="j/object_manager_v.0.1.js"></script>
-	<script type="text/javascript" src="j/helper.js"></script>
-	<script type="text/javascript" src="j/options.js"></script>
-	<script type="text/javascript" src="theme/bootstrap/js/bootstrap.min.js"></script>
-</head>
-<body>
+    <link rel="stylesheet" href="theme/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="theme/angular/angular-csp.css">
+    <link rel="stylesheet" href="theme/bootstrap/css/bootstrap-theme.min.css">
 
+    <script type="text/javascript" src="js/angular.js" ng-csp></script>
+    <script type="text/javascript" src="js/app.js"></script>
+</head>
+<body ng-controller="ListController as list">
 	<div class="container">
 		<div class="row text-center">
 			<h1>Список заблокированных доменов</h1>
@@ -23,7 +21,13 @@
 						<td>Действия</td>
 					</tr>
 				</thead>
-				<tbody class="blocked-list"></tbody>
+				<tbody>
+                    <tr ng-show="list.domains" ng-repeat="(domain, status) in list.domains track by $index">
+                        <td>{{domain}}</td>
+                        <td><input type="button" class="btn btn-danger" value="Разблокировать" ng-click="list.unlockDomain(domain)"></td>
+                    </tr>
+                    <tr ng-hide="list.domains.length"><td colspan="2">Пока здесь пусто, заблокируй сайт и он появится в этом списке</td></tr>
+				</tbody>
 			</table>
 		</div>
 	</div>

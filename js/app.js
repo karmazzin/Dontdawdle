@@ -39,6 +39,17 @@
 
     });
 
+    app.controller('ListController', function(Blocker) {
+        var vm = this;
+
+        vm.domains = Blocker.getAllBlocked();//@TODO переделать сторадж
+
+        vm.unlockDomain = function(domain) {
+            Blocker.removeBlock(domain);
+            delete vm.domains[domain];
+        };
+    });
+
     app.factory('ChromeService', function($q, $window) {
         return {
             tabs: function() {
