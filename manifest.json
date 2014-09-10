@@ -3,7 +3,7 @@
 
     "name": "Site blocker. Don't dawdle!",
     "description": "Блокировщик сайтов \"Не халявь!\"",
-    "version": "2.0.0",
+    "version": "2.0.2",
 
     "background": {
         "scripts": ["j/object_manager_v.0.1.js", "j/helper.js", "j/backgrounds.js"]
