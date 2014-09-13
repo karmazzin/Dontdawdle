@@ -5,7 +5,7 @@
 
     app.factory('ChromeService', function($q) {
         return {
-            tabs: function() {
+            tabsPromise: function() {
                 var deferred = $q.defer();
 
                 chrome.tabs.query({currentWindow: true, active: true}, function(tabs) {
@@ -28,55 +28,80 @@
         return self;
     });
 
-    app.factory('Storage', function() {
+    app.factory('Blocker', function(ChromeStorage) {
         var self = {};
 
-        self.get = function (key) {
-            return localStorage.getItem(key);
+        function _setAllBlocked(list) {
+            ChromeStorage.put('blocklist', list);
+        }
+
+        self.isBlocked = function(domain) {
+            return self.getAllBlockedPromise().then(function(blockedList) {
+                return blockedList.indexOf(domain) >= 0;
+            });
         };
-        self.put = function (key, value) {
-            return localStorage.setItem(key, value);
+
+        self.addBlock = function(domain) {
+            self.isBlocked(domain).then(function(is_block) {
+                if (is_block) {
+                    return;
+                }
+
+                self.getAllBlockedPromise().then(function(blockedList) {
+                    blockedList.push(domain);
+                    _setAllBlocked(blockedList);
+                });
+            });
         };
-        self.del = function (key) {
-            return localStorage.removeItem(key);
+
+        self.removeBlock = function(domain) {
+            self.isBlocked(domain).then(function(is_block) {
+                if (!is_block) {
+                    return;
+                }
+                self.getAllBlockedPromise().then(function(blockedList) {
+                    blockedList.splice(blockedList.indexOf(domain), 1);
+                    _setAllBlocked(blockedList);
+                });
+            });
         };
+
+        self.getAllBlockedPromise = function() {
+            return ChromeStorage.getPromise('blocklist').then(function(blockedList) {
+                return blockedList;
+            });
+        };
+
+
+        self.getAllBlockedPromise().then(function(blockedList) {
+            if (blockedList.length) {
+                return;
+            }
+
+            _setAllBlocked([]);
+        });
 
         return self;
     });
 
-    app.factory('Blocker', function(Storage) {
-        function _setAllBlocked(list) {
-            Storage.put('blocklist',  JSON.stringify(list));
-        }
+    app.factory('ChromeStorage', function($q) {
+        var self = {};
 
-        self.isBlocked = function(domain) {
-            var blockedList = self.getAllBlocked();
-            return (domain in blockedList);
-        }
+        self.getPromise = function(key) {
+            var deferred = $q.defer();
 
-        self.addBlock = function(domain) {
-            if (!self.isBlocked(domain)) {
-                var blockedList = self.getAllBlocked();
-                blockedList[domain] = true;
-                _setAllBlocked(blockedList);
-            }
-        }
+            chrome.storage.sync.get(key, function (object) {
+                deferred.resolve(object[key]);
+            });
 
-        self.removeBlock = function(domain) {
-            if (self.isBlocked(domain)) {
-                var blockedList = self.getAllBlocked();
-                delete blockedList[domain];
-                _setAllBlocked(blockedList);
-            }
-        }
+            return deferred.promise;
+        };
 
-        self.getAllBlocked = function() {
-            return JSON.parse(Storage.get('blocklist'));
-        }
-
-        if (!self.getAllBlocked()) {
-            _setAllBlocked({});
-        }
+        self.put = function(key, value) {
+            var object = {};
+            object[key] = value;
+            chrome.storage.sync.set(object);
+        };
 
         return self;
     });

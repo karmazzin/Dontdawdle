@@ -24,7 +24,7 @@
 					</tr>
 				</thead>
 				<tbody>
-                    <tr ng-show="list.domains" ng-repeat="(domain, status) in list.domains track by $index">
+                    <tr ng-show="list.domains" ng-repeat="domain in list.domains track by $index">
                         <td>{{domain}}</td>
                         <td><input type="button" class="btn btn-danger" value="Разблокировать" ng-click="list.unlockDomain(domain)"></td>
                     </tr>
