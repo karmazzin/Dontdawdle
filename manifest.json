@@ -3,7 +3,7 @@
 
     "name": "Site blocker. Don't dawdle!",
     "description": "Блокировщик сайтов \"Не халявь!\"",
-    "version": "2.1.0",
+    "version": "2.1.1",
 
     "background": {
         "page": "background.html"
@@ -19,5 +19,5 @@
         "default_popup": "popup.html"
     },
 
-    "permissions": ["tabs"]
+    "permissions": ["tabs", "storage"]
 }
