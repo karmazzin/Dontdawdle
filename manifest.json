@@ -3,21 +3,21 @@
 
     "name": "Site blocker. Don't dawdle!",
     "description": "Блокировщик сайтов \"Не халявь!\"",
-    "version": "1.0",
+    "version": "2.1.4",
 
     "background": {
-        "scripts": ["j/object_manager_v.0.1.js", "j/helper.js", "j/backgrounds.js"]
+        "page": "background.html"
     },
     "options_page": "options.html",
     "icons": {
         "128": "i/128.png"
     },
 
-    "page_action": {
+    "browser_action": {
         "default_icon": "i/128.png",
         "default_title": "Don't dawdle!",
         "default_popup": "popup.html"
     },
 
-    "permissions": ["tabs"]
+    "permissions": ["tabs", "storage"]
 }

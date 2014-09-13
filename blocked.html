@@ -1,18 +1,18 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="dontdawdle">
 <head>
 	<meta charset="UTF-8">
-	<title></title>
-	<link rel="stylesheet" href="theme/bootstrap/css/bootstrap.min.css">
+	<title>Don't dawdle!</title>
+    <link rel="stylesheet" href="theme/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="theme/angular/angular-csp.css">
 	<link rel="stylesheet" href="theme/bootstrap/css/bootstrap-theme.min.css">
 
-	<script type="text/javascript" src="j/jquery.js"></script>
-	<script type="text/javascript" src="j/object_manager_v.0.1.js"></script>
-	<script type="text/javascript" src="j/helper.js"></script>
-	<script type="text/javascript" src="j/blocked.js"></script>
-	<script type="text/javascript" src="theme/bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/angular.js" ng-csp></script>
+    <script type="text/javascript" src="js/app.js"></script>
+    <script type="text/javascript" src="js/controllers.js"></script>
+    <script type="text/javascript" src="js/services.js"></script>
 </head>
-<body>
+<body ng-controller="LockController as block">
 	<div class="container">
 		<div class="row text-center">
 			<img src="i/homer.jpg" style="max-height: 50%" />
@@ -21,8 +21,8 @@
 			<div id="blocked"></div>
 			<!--<img ...>-->
 			<div class="well" style="max-width: 480px; margin: 0 auto 10px;">
-				<a class="btn btn-danger btn-lg btn-block" role="button" id="unlock_action">Разблокировать этот сайт</a>
-				<a class="btn btn-primary btn-lg btn-block" role="button" id="to-list_action">Перейти в список заблокированных сайтов</a>
+				<a class="btn btn-danger btn-lg btn-block" role="button" ng-click="block.unlockLastDomain()">Разблокировать этот сайт</a>
+				<a class="btn btn-primary btn-lg btn-block" role="button" ng-click="block.redirectToList()">Перейти в список заблокированных сайтов</a>
 			</div>
 		</div>
 	</div>
