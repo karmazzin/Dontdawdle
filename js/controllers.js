@@ -50,7 +50,7 @@
 
         vm.unlockDomain = function(domain) {
             Blocker.removeBlock(domain);
-//            vm.domains.splice(vm.domains.indexOf(domain), 1);
+            vm.domains.splice(vm.domains.indexOf(domain), 1);
         };
     });
 })();
