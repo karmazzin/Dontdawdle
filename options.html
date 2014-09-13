@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html ng-app="dontdawdle">
 <head>
-	<meta charset="utf-8">
-	<title>Don't dawdle!</title>
+    <meta charset="utf-8">
+    <title>Don't dawdle!</title>
     <link rel="stylesheet" href="theme/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="theme/angular/angular-csp.css">
     <link rel="stylesheet" href="theme/bootstrap/css/bootstrap-theme.min.css">
@@ -13,25 +13,28 @@
     <script type="text/javascript" src="js/services.js"></script>
 </head>
 <body ng-controller="ListController as list">
-	<div class="container">
-		<div class="row text-center">
-			<h1>Список заблокированных доменов</h1>
-			<table class="table table-hover table-bordered">
-				<thead>
-					<tr>
-						<td>Домен</td>
-						<td>Действия</td>
-					</tr>
-				</thead>
-				<tbody>
-                    <tr ng-show="list.domains" ng-repeat="domain in list.domains track by $index">
-                        <td>{{domain}}</td>
-                        <td><input type="button" class="btn btn-danger" value="Разблокировать" ng-click="list.unlockDomain(domain)"></td>
-                    </tr>
-                    <tr ng-hide="list.domains.length"><td colspan="2">Пока здесь пусто, заблокируй сайт и он появится в этом списке</td></tr>
-				</tbody>
-			</table>
-		</div>
-	</div>
+<div class="container">
+    <div class="row text-center">
+        <h1>Список заблокированных доменов</h1>
+        <table class="table table-hover table-bordered">
+            <thead>
+            <tr>
+                <td>Домен</td>
+                <td>Действия</td>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-show="list.domains" ng-repeat="domain in list.domains track by $index">
+                <td>{{domain}}</td>
+                <td><input type="button" class="btn btn-danger" value="Разблокировать"
+                           ng-click="list.unlockDomain(domain)"></td>
+            </tr>
+            <tr ng-hide="list.domains.length">
+                <td colspan="2">Пока здесь пусто, заблокируй сайт и он появится в этом списке</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
 </body>
 </html>

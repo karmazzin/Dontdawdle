@@ -11,8 +11,8 @@
     <script type="text/javascript" src="js/controllers.js"></script>
     <script type="text/javascript" src="js/services.js"></script>
 </head>
-<body ng-controller="PopupController as p">
-    <h4 ng-hide="p.domain">Эту страницу нельзя заблокировать</h4>
-    <input ng-show="p.domain" ng-click="p.lockCurrentUrl()" class="btn btn-sm btn-danger" type="button" value="Заблокировать"><br>
+<body ng-controller="PopupController as popup">
+    <h4 ng-hide="popup.domain">Эту страницу нельзя заблокировать</h4>
+    <input ng-show="popup.domain" ng-click="popup.lockCurrentUrl()" class="btn btn-sm btn-danger" type="button" value="Заблокировать"><br>
 </body>
 </html>
