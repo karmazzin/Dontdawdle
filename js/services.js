@@ -74,7 +74,7 @@
 
 
         self.getAllBlockedPromise().then(function(blockedList) {
-            if (blockedList.length) {
+            if (blockedList instanceof Array && blockedList.length) {
                 return;
             }
 
