@@ -3,10 +3,10 @@
 
     "name": "Site blocker. Don't dawdle!",
     "description": "Блокировщик сайтов \"Не халявь!\"",
-    "version": "2.0.3",
+    "version": "2.0.4",
 
     "background": {
-        "scripts": ["j/object_manager_v.0.1.js", "j/helper.js", "j/backgrounds.js"]
+        "page": "background.html"
     },
     "options_page": "options.html",
     "icons": {

@@ -15,7 +15,7 @@
         vm.lockCurrentUrl = function() {
             Blocker.addBlock(vm.domain);
             Storage.put('last_domain', vm.domain);
-            ChromeService.redirect(tab.id, "blocked.html");
+            chrome.tabs.update(tab.id, {"url" : "blocked.html"});
         };
     });
 
@@ -30,11 +30,12 @@
         vm.unlockLastDomain = function() {
             var last_domian = Storage.get('last_domain');
             Blocker.removeBlock(last_domian);
-            ChromeService.redirect(tab.id, last_domian);
+            chrome.tabs.update(tab.id, {"url" : last_domian});
         };
 
-        vm.redirectToList = function() {
-            ChromeService.redirect(tab.id, "options.html");
+        vm.redirectToList = function($window) {
+            chrome.tabs.update(tab.id, {"url" : "options.html"});
+            $window.close();
         };
 
     });
@@ -50,7 +51,7 @@
         };
     });
 
-    app.factory('ChromeService', function($q, $window) {
+    app.factory('ChromeService', function($q) {
         return {
             tabs: function() {
                 var deferred = $q.defer();
@@ -60,15 +61,11 @@
                 });
 
                 return deferred.promise;
-            },
-            redirect: function(id, url) {
-                chrome.tabs.update(id, {"url" : url});
-                $window.close();
             }
         };
     });
 
-    app.service('Helper', function() {
+    app.factory('Helper', function() {
         var self = {};
 
         self.getDomain = function(url) {
@@ -79,7 +76,7 @@
         return self;
     });
 
-    app.service('Storage', function() {
+    app.factory('Storage', function() {
         var self = {};
 
         self.get = function (key) {
@@ -95,7 +92,7 @@
         return self;
     });
 
-    app.service('Blocker', function(Storage) {
+    app.factory('Blocker', function(Storage) {
         function _setAllBlocked(list) {
             Storage.put('blocklist',  JSON.stringify(list));
         }
