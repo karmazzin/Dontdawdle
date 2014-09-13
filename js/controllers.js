@@ -12,10 +12,11 @@
             vm.domain = Helper.getDomain(tab.url);
         });
 
-        vm.lockCurrentUrl = function() {
+        vm.lockCurrentUrl = function($window) {
             Blocker.addBlock(vm.domain);
             ChromeStorage.put('last_domain', vm.domain);
             chrome.tabs.update(tab.id, {"url" : "blocked.html"});
+            $window.close();
         };
     });
 
@@ -34,9 +35,8 @@
             });
         };
 
-        vm.redirectToList = function($window) {
+        vm.redirectToList = function() {
             chrome.tabs.update(tab.id, {"url" : "options.html"});
-            $window.close();
         };
 
     });
