@@ -3,7 +3,7 @@
 
     "name": "Site blocker. Don't dawdle!",
     "description": "Блокировщик сайтов \"Не халявь!\"",
-    "version": "2.0.4",
+    "version": "2.1.0",
 
     "background": {
         "page": "background.html"
