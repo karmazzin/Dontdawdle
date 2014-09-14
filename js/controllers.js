@@ -13,10 +13,11 @@
         });
 
         vm.lockCurrentUrl = function() {
-            Blocker.addBlock(vm.domain);
-            ChromeStorage.put('last_domain', vm.domain);
-            chrome.tabs.update(tab.id, {"url" : "blocked.html"});
-            $window.close();
+            Blocker.addBlockPromise(vm.domain).then(function() {
+                ChromeStorage.put('last_domain', vm.domain);
+                chrome.tabs.update(tab.id, {"url" : "blocked.html"});
+                $window.close();
+            });
         };
     });
 

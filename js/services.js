@@ -28,7 +28,7 @@
         return self;
     });
 
-    app.factory('Blocker', function(ChromeStorage) {
+    app.factory('Blocker', function(ChromeStorage, $q) {
         var self = {};
 
         function _setAllBlocked(list) {
@@ -41,7 +41,9 @@
             });
         };
 
-        self.addBlock = function(domain) {
+        self.addBlockPromise = function(domain) {
+            var deferred = $q.defer();
+
             self.isBlocked(domain).then(function(is_block) {
                 if (is_block) {
                     return;
@@ -50,8 +52,12 @@
                 self.getAllBlockedPromise().then(function(blockedList) {
                     blockedList.push(domain);
                     _setAllBlocked(blockedList);
+
+                    deferred.resolve();
                 });
             });
+
+            return deferred.promise;
         };
 
         self.removeBlock = function(domain) {
