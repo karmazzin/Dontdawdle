@@ -13,6 +13,8 @@
         });
 
         vm.lockCurrentUrl = function() {
+            _gaq.push(['_trackEvent', 'Block', 'Block domain ' + vm.domain]);
+
             Blocker.addBlockPromise(vm.domain).then(function() {
                 ChromeStorage.put('last_domain', vm.domain);
                 chrome.tabs.update(tab.id, {"url" : "blocked.html"});
@@ -21,7 +23,7 @@
         };
     });
 
-    app.controller('LockController', function(ChromeService, ChromeStorage, Blocker) {
+    app.controller('LockController', function(ChromeService, ChromeStorage, Blocker, $timeout) {
         var vm = this;
         var tab = {};
 
@@ -30,9 +32,13 @@
         });
 
         vm.unlockLastDomain = function() {
-            ChromeStorage.getPromise('last_domain').then(function(last_domain) {
-                Blocker.removeBlock(last_domain);
-                chrome.tabs.update(tab.id, {"url" : last_domain});
+            ChromeStorage.getPromise('last_domain').then(function (last_domain) {
+                _gaq.push(['_trackEvent', 'Unlock last', 'Unlock last domain ' + last_domain]);
+
+                $timeout(function () {
+                    Blocker.removeBlock(last_domain);
+                    chrome.tabs.update(tab.id, {"url": last_domain});
+                }, 50)
             });
         };
 
@@ -50,6 +56,8 @@
         });
 
         vm.unlockDomain = function(domain) {
+            _gaq.push(['_trackEvent', 'Unlock', 'Unlock domain ' + domain]);
+
             Blocker.removeBlock(domain);
             vm.domains.splice(vm.domains.indexOf(domain), 1);
         };
