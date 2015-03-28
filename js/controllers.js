@@ -60,6 +60,8 @@
 
             Blocker.removeBlock(domain);
             vm.domains.splice(vm.domains.indexOf(domain), 1);
+            chrome.browserAction.setBadgeBackgroundColor({color:[0, 0, 0, 190]});
+            chrome.browserAction.setBadgeText({text: vm.domains.length + ''});
         };
     });
 })();

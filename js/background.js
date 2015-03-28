@@ -7,6 +7,11 @@
         chrome.tabs.onUpdated.addListener(function(tabId, changedInfo, tab) {
             var domain = Helper.getDomain(tab.url);
 
+            Blocker.getAllBlockedPromise().then(function(blockedList) {
+                chrome.browserAction.setBadgeBackgroundColor({color:[0, 0, 0, 190]});
+                chrome.browserAction.setBadgeText({text: blockedList.length + ''});
+            });
+
             Blocker.isBlocked(domain).then(function(is_block) {
                 if (!is_block) {
                     return;
