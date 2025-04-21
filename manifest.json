@@ -3,7 +3,7 @@
     "short_name": "Don't dawdle!",
     "name": "Site blocker. Don't dawdle!",
     "description": "Блокировщик сайтов \"Не халявь!\"",
-    "version": "2.2.1",
+    "version": "3.0.0",
 
     "background": {
         "service_worker": "js/background.js",
