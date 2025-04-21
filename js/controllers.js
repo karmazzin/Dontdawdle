@@ -1,67 +1,148 @@
 'use strict';
 
-(function() {
-    var app = angular.module('dontdawdle');
+import { ChromeService } from './services.js';
+import { Helper } from './services.js';
+import { ChromeStorage } from './services.js';
+import { Blocker } from './services.js';
 
-    app.controller('PopupController', function(ChromeService, Helper, ChromeStorage, Blocker, $window) {
-        var vm = this;
-        var tab = {};
+// Popup Controller
+export class PopupController {
+    constructor() {
+        this.domain = '';
+        this.init();
+    }
 
-        ChromeService.tabsPromise().then(function(data) {
-            tab = data;
-            vm.domain = Helper.getDomain(tab.url);
-        });
+    async init() {
+        const tab = await ChromeService.tabsPromise();
+        this.domain = Helper.getDomain(tab.url);
+        this.render();
+    }
 
-        vm.lockCurrentUrl = function() {
-            _gaq.push(['_trackEvent', 'Block', 'Block domain ' + vm.domain]);
+    async lockCurrentUrl() {
+        if (typeof _gaq !== 'undefined') {
+            _gaq.push(['_trackEvent', 'Block', 'Block domain ' + this.domain]);
+        }
 
-            Blocker.addBlockPromise(vm.domain).then(function() {
-                ChromeStorage.put('last_domain', vm.domain);
-                chrome.tabs.update(tab.id, {"url" : "blocked.html"});
-                $window.close();
-            });
-        };
-    });
+        await Blocker.addBlockPromise(this.domain);
+        await ChromeStorage.put('last_domain', this.domain);
+        const tab = await ChromeService.tabsPromise();
+        await chrome.tabs.update(tab.id, { url: "blocked.html" });
+        window.close();
+    }
 
-    app.controller('LockController', function(ChromeService, ChromeStorage, Blocker, $timeout) {
-        var vm = this;
-        var tab = {};
+    render() {
+        const container = document.getElementById('popup-content');
+        if (!container) return;
 
-        ChromeService.tabsPromise().then(function(data) {
-            tab = data;
-        });
+        if (!this.domain) {
+            container.innerHTML = '<h4>Эту страницу нельзя заблокировать</h4>';
+        } else {
+            container.innerHTML = `
+                <input class="btn btn-sm btn-danger" type="button" value="Заблокировать" id="block-button">
+            `;
+            document.getElementById('block-button').addEventListener('click', () => this.lockCurrentUrl());
+        }
+    }
+}
 
-        vm.unlockLastDomain = function() {
-            ChromeStorage.getPromise('last_domain').then(function (last_domain) {
-                _gaq.push(['_trackEvent', 'Unlock last', 'Unlock last domain ' + last_domain]);
+// Lock Controller
+export class LockController {
+    constructor() {
+        this.init();
+    }
 
-                $timeout(function () {
-                    Blocker.removeBlock(last_domain);
-                    chrome.tabs.update(tab.id, {"url": last_domain});
-                }, 50)
-            });
-        };
+    async init() {
+        this.tab = await ChromeService.tabsPromise();
+        this.render();
+    }
 
-        vm.redirectToList = function() {
-            chrome.tabs.update(tab.id, {"url" : "options.html"});
-        };
+    async unlockLastDomain() {
+        const lastDomain = await ChromeStorage.getPromise('last_domain');
+        if (typeof _gaq !== 'undefined') {
+            _gaq.push(['_trackEvent', 'Unlock last', 'Unlock last domain ' + lastDomain]);
+        }
 
-    });
+        await Blocker.removeBlock(lastDomain);
+        await chrome.tabs.update(this.tab.id, { url: lastDomain });
+    }
 
-    app.controller('ListController', function(Blocker) {
-        var vm = this;
+    async redirectToList() {
+        await chrome.tabs.update(this.tab.id, { url: "options.html" });
+    }
 
-        Blocker.getAllBlockedPromise().then(function(blockedList) {
-            vm.domains = blockedList;
-        });
+    render() {
+        const container = document.getElementById('lock-content');
+        if (!container) return;
 
-        vm.unlockDomain = function(domain) {
+        container.innerHTML = `
+            <button class="btn btn-primary" id="unlock-button">Разблокировать последний домен</button>
+            <button class="btn btn-secondary" id="list-button">Перейти к списку</button>
+        `;
+
+        document.getElementById('unlock-button').addEventListener('click', () => this.unlockLastDomain());
+        document.getElementById('list-button').addEventListener('click', () => this.redirectToList());
+    }
+}
+
+// List Controller
+export class ListController {
+    constructor() {
+        this.domains = [];
+        this.init();
+    }
+
+    async init() {
+        this.domains = await Blocker.getAllBlockedPromise();
+        this.render();
+        this.setupEventListeners();
+    }
+
+    async unlockDomain(domain) {
+        if (typeof _gaq !== 'undefined') {
             _gaq.push(['_trackEvent', 'Unlock', 'Unlock domain ' + domain]);
+        }
 
-            Blocker.removeBlock(domain);
-            vm.domains.splice(vm.domains.indexOf(domain), 1);
-            chrome.browserAction.setBadgeBackgroundColor({color:[0, 0, 0, 190]});
-            chrome.browserAction.setBadgeText({text: vm.domains.length + ''});
-        };
-    });
-})();
+        await Blocker.removeBlock(domain);
+        this.domains = this.domains.filter(d => d !== domain);
+        await chrome.action.setBadgeBackgroundColor({ color: [0, 0, 0, 190] });
+        await chrome.action.setBadgeText({ text: this.domains.length.toString() });
+        this.render();
+        this.setupEventListeners();
+    }
+
+    setupEventListeners() {
+        const container = document.getElementById('list-content');
+        if (!container) return;
+
+        // Use event delegation for the unlock buttons
+        container.addEventListener('click', (event) => {
+            const button = event.target.closest('.unlock-button');
+            if (button && button.dataset.domain) {
+                this.unlockDomain(button.dataset.domain);
+            }
+        });
+    }
+
+    render() {
+        const container = document.getElementById('list-content');
+        if (!container) return;
+
+        if (this.domains.length === 0) {
+            container.innerHTML = '<p>Нет заблокированных доменов</p>';
+            return;
+        }
+
+        container.innerHTML = `
+            <ul class="list-group">
+                ${this.domains.map(domain => `
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${domain}
+                        <button class="btn btn-sm btn-danger unlock-button" data-domain="${domain}">
+                            Разблокировать
+                        </button>
+                    </li>
+                `).join('')}
+            </ul>
+        `;
+    }
+}

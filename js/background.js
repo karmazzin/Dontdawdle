@@ -1,31 +1,42 @@
 'use strict';
 
-(function() {
-    var app = angular.module('dontdawdle');
+// Import required modules
+import { ChromeStorage } from './services.js';
+import { Blocker } from './services.js';
+import { Helper } from './services.js';
 
-    app.run(function(ChromeStorage, Blocker, Helper, $timeout) {
-        chrome.tabs.onUpdated.addListener(function(tabId, changedInfo, tab) {
-            var domain = Helper.getDomain(tab.url);
+// Initialize the service worker
+chrome.runtime.onInstalled.addListener(() => {
+    console.log('Extension installed');
+});
 
-            Blocker.getAllBlockedPromise().then(function(blockedList) {
-                chrome.browserAction.setBadgeBackgroundColor({color:[0, 0, 0, 190]});
-                chrome.browserAction.setBadgeText({text: blockedList.length + ''});
-            });
-
-            Blocker.isBlocked(domain).then(function(is_block) {
-                if (!is_block) {
-                    return;
-                }
-
+// Listen for tab updates
+chrome.tabs.onUpdated.addListener(async (tabId, changedInfo, tab) => {
+    if (!tab.url) return;
+    
+    const domain = Helper.getDomain(tab.url);
+    
+    try {
+        const blockedList = await Blocker.getAllBlockedPromise();
+        
+        // Update badge
+        await chrome.action.setBadgeBackgroundColor({ color: [0, 0, 0, 190] });
+        await chrome.action.setBadgeText({ text: blockedList.length.toString() });
+        
+        // Check if domain is blocked
+        const isBlocked = await Blocker.isBlocked(domain);
+        
+        if (isBlocked) {
+            // Track the attempt
+            if (typeof _gaq !== 'undefined') {
                 _gaq.push(['_trackEvent', 'Attempt', 'Attempt to open blocked domain ' + domain]);
-
-                $timeout(function () {
-                    ChromeStorage.put('last_domain', domain);
-                    chrome.tabs.update(tabId, {"url" : "blocked.html"});
-                }, 50)
-            });
-
-        });
-    });
-
-})();
+            }
+            
+            // Store the domain and redirect
+            await ChromeStorage.put('last_domain', domain);
+            await chrome.tabs.update(tabId, { url: "blocked.html" });
+        }
+    } catch (error) {
+        console.error('Error in background service worker:', error);
+    }
+});

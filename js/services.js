@@ -1,114 +1,75 @@
 'use strict';
 
-(function() {
-    var app = angular.module('dontdawdle');
+// Chrome Service
+export class ChromeService {
+    static async tabsPromise() {
+        const tabs = await chrome.tabs.query({currentWindow: true, active: true});
+        return tabs[0];
+    }
+}
 
-    app.factory('ChromeService', function($q) {
-        return {
-            tabsPromise: function() {
-                var deferred = $q.defer();
+// Helper Service
+export class Helper {
+    static getDomain(url) {
+        const m = url.match(/^(http|https):\/\/[^/]+/);
+        return m ? m[0] : '';
+    }
+}
 
-                chrome.tabs.query({currentWindow: true, active: true}, function(tabs) {
-                    deferred.resolve(tabs[0]);
-                });
+// Blocker Service
+export class Blocker {
+    static async _setAllBlocked(list) {
+        await ChromeStorage.put('blocklist', list);
+    }
 
-                return deferred.promise;
-            }
-        };
-    });
+    static async isBlocked(domain) {
+        const blockedList = await this.getAllBlockedPromise();
+        return blockedList.indexOf(domain) >= 0;
+    }
 
-    app.factory('Helper', function() {
-        var self = {};
+    static async addBlockPromise(domain) {
+        const isBlocked = await this.isBlocked(domain);
+        if (isBlocked) return;
 
-        self.getDomain = function(url) {
-            var m = url.match(/^(http|https):\/\/[^/]+/);//@TODO сделать чекер на допустимые урлы
-            return m ? m[0] : '';
-        };
+        const blockedList = await this.getAllBlockedPromise();
+        blockedList.push(domain);
+        await this._setAllBlocked(blockedList);
+    }
 
-        return self;
-    });
+    static async removeBlock(domain) {
+        const isBlocked = await this.isBlocked(domain);
+        if (!isBlocked) return;
 
-    app.factory('Blocker', function(ChromeStorage, $q) {
-        var self = {};
-
-        function _setAllBlocked(list) {
-            ChromeStorage.put('blocklist', list);
+        const blockedList = await this.getAllBlockedPromise();
+        const index = blockedList.indexOf(domain);
+        if (index > -1) {
+            blockedList.splice(index, 1);
+            await this._setAllBlocked(blockedList);
         }
+    }
 
-        self.isBlocked = function(domain) {
-            return self.getAllBlockedPromise().then(function(blockedList) {
-                return blockedList.indexOf(domain) >= 0;
-            });
-        };
+    static async getAllBlockedPromise() {
+        const result = await ChromeStorage.getPromise('blocklist');
+        return result || [];
+    }
+}
 
-        self.addBlockPromise = function(domain) {
-            var deferred = $q.defer();
+// Chrome Storage Service
+export class ChromeStorage {
+    static async getPromise(key) {
+        const result = await chrome.storage.sync.get(key);
+        return result[key];
+    }
 
-            self.isBlocked(domain).then(function(is_block) {
-                if (is_block) {
-                    return;
-                }
+    static async put(key, value) {
+        await chrome.storage.sync.set({ [key]: value });
+    }
+}
 
-                self.getAllBlockedPromise().then(function(blockedList) {
-                    blockedList.push(domain);
-                    _setAllBlocked(blockedList);
-
-                    deferred.resolve();
-                });
-            });
-
-            return deferred.promise;
-        };
-
-        self.removeBlock = function(domain) {
-            self.isBlocked(domain).then(function(is_block) {
-                if (!is_block) {
-                    return;
-                }
-                self.getAllBlockedPromise().then(function(blockedList) {
-                    blockedList.splice(blockedList.indexOf(domain), 1);
-                    _setAllBlocked(blockedList);
-                });
-            });
-        };
-
-        self.getAllBlockedPromise = function() {
-            return ChromeStorage.getPromise('blocklist').then(function(blockedList) {
-                return blockedList;
-            });
-        };
-
-
-        self.getAllBlockedPromise().then(function(blockedList) {
-            if (blockedList instanceof Array && blockedList.length) {
-                return;
-            }
-
-            _setAllBlocked([]);
-        });
-
-        return self;
-    });
-
-    app.factory('ChromeStorage', function($q) {
-        var self = {};
-
-        self.getPromise = function(key) {
-            var deferred = $q.defer();
-
-            chrome.storage.sync.get(key, function (object) {
-                deferred.resolve(object[key]);
-            });
-
-            return deferred.promise;
-        };
-
-        self.put = function(key, value) {
-            var object = {};
-            object[key] = value;
-            chrome.storage.sync.set(object);
-        };
-
-        return self;
-    });
+// Initialize blocklist if empty
+(async () => {
+    const blockedList = await Blocker.getAllBlockedPromise();
+    if (!Array.isArray(blockedList) || !blockedList.length) {
+        await Blocker._setAllBlocked([]);
+    }
 })();

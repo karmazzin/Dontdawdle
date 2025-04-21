@@ -1,41 +1,29 @@
 <!DOCTYPE html>
-<html ng-app="dontdawdle">
+<html>
 <head>
     <meta charset="utf-8">
     <title>Don't dawdle!</title>
     <link rel="stylesheet" href="theme/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="theme/angular/angular-csp.css">
     <link rel="stylesheet" href="theme/bootstrap/css/bootstrap-theme.min.css">
-
-    <script type="text/javascript" src="js/angular.min.js" ng-csp></script>
-    <script type="text/javascript" src="js/app.js"></script>
-    <script type="text/javascript" src="js/controllers.js"></script>
-    <script type="text/javascript" src="js/services.js"></script>
-    <script type="text/javascript" src="js/analytics.js"></script>
+    <style>
+        body {
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+        }
+        .table {
+            margin-top: 20px;
+        }
+    </style>
 </head>
-<body ng-controller="ListController as list">
-<div class="container">
-    <div class="row text-center">
-        <h1>Список заблокированных доменов</h1>
-        <table class="table table-hover table-bordered">
-            <thead>
-            <tr>
-                <td>Домен</td>
-                <td>Действия</td>
-            </tr>
-            </thead>
-            <tbody>
-            <tr ng-show="list.domains" ng-repeat="domain in list.domains track by $index">
-                <td>{{domain}}</td>
-                <td><input type="button" class="btn btn-danger" value="Разблокировать"
-                           ng-click="list.unlockDomain(domain)"></td>
-            </tr>
-            <tr ng-hide="list.domains.length">
-                <td colspan="2">Пока здесь пусто, заблокируй сайт и он появится в этом списке</td>
-            </tr>
-            </tbody>
-        </table>
+<body>
+    <div class="container">
+        <div class="row text-center">
+            <h1>Список заблокированных доменов</h1>
+            <div id="list-content"></div>
+        </div>
     </div>
-</div>
+    <script type="module" src="js/init.js"></script>
 </body>
 </html>
