@@ -19,10 +19,6 @@ export class PopupController {
     }
 
     async lockCurrentUrl() {
-        if (typeof _gaq !== 'undefined') {
-            _gaq.push(['_trackEvent', 'Block', 'Block domain ' + this.domain]);
-        }
-
         await Blocker.addBlockPromise(this.domain);
         await ChromeStorage.put('last_domain', this.domain);
         const tab = await ChromeService.tabsPromise();
@@ -58,10 +54,6 @@ export class LockController {
 
     async unlockLastDomain() {
         const lastDomain = await ChromeStorage.getPromise('last_domain');
-        if (typeof _gaq !== 'undefined') {
-            _gaq.push(['_trackEvent', 'Unlock last', 'Unlock last domain ' + lastDomain]);
-        }
-
         await Blocker.removeBlock(lastDomain);
         await chrome.tabs.update(this.tab.id, { url: lastDomain });
     }
@@ -98,10 +90,6 @@ export class ListController {
     }
 
     async unlockDomain(domain) {
-        if (typeof _gaq !== 'undefined') {
-            _gaq.push(['_trackEvent', 'Unlock', 'Unlock domain ' + domain]);
-        }
-
         await Blocker.removeBlock(domain);
         this.domains = this.domains.filter(d => d !== domain);
         await chrome.action.setBadgeBackgroundColor({ color: [0, 0, 0, 190] });

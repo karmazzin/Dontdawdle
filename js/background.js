@@ -27,11 +27,6 @@ chrome.tabs.onUpdated.addListener(async (tabId, changedInfo, tab) => {
         const isBlocked = await Blocker.isBlocked(domain);
         
         if (isBlocked) {
-            // Track the attempt
-            if (typeof _gaq !== 'undefined') {
-                _gaq.push(['_trackEvent', 'Attempt', 'Attempt to open blocked domain ' + domain]);
-            }
-            
             // Store the domain and redirect
             await ChromeStorage.put('last_domain', domain);
             await chrome.tabs.update(tabId, { url: "blocked.html" });
