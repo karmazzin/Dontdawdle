@@ -3,12 +3,28 @@
     "short_name": "Don't dawdle!",
     "name": "Site blocker. Don't dawdle!",
     "description": "Блокировщик сайтов \"Не халявь!\"",
-    "version": "3.0.0",
+    "version": "4.0.0",
 
     "background": {
         "service_worker": "js/background.js",
         "type": "module"
     },
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "js": ["js/content.js"],
+            "run_at": "document_start",
+            "all_frames": true
+        }
+    ],
+    "web_accessible_resources": [{
+        "resources": [
+            "theme/bootstrap/css/bootstrap.min.css",
+            "i/homer.jpg",
+            "i/128.png"
+        ],
+        "matches": ["<all_urls>"]
+    }],
     "options_page": "options.html",
     "icons": {
         "128": "i/128.png"

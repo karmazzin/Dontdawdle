@@ -21,8 +21,14 @@ export class PopupController {
     async lockCurrentUrl() {
         await Blocker.addBlockPromise(this.domain);
         await ChromeStorage.put('last_domain', this.domain);
+        // Send message to content script to show block overlay
         const tab = await ChromeService.tabsPromise();
-        await chrome.tabs.update(tab.id, { url: "blocked.html" });
+        await chrome.tabs.sendMessage(tab.id, { action: 'block' });
+        window.close();
+    }
+
+    async goToList() {
+        await chrome.runtime.openOptionsPage();
         window.close();
     }
 
@@ -34,45 +40,14 @@ export class PopupController {
             container.innerHTML = '<h4>Эту страницу нельзя заблокировать</h4>';
         } else {
             container.innerHTML = `
-                <input class="btn btn-sm btn-danger" type="button" value="Заблокировать" id="block-button">
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <input class="btn btn-sm btn-danger" type="button" value="Заблокировать" id="block-button">
+                    <input class="btn btn-sm btn-secondary" type="button" value="Перейти к списку доменов" id="list-button">
+                </div>
             `;
             document.getElementById('block-button').addEventListener('click', () => this.lockCurrentUrl());
+            document.getElementById('list-button').addEventListener('click', () => this.goToList());
         }
-    }
-}
-
-// Lock Controller
-export class LockController {
-    constructor() {
-        this.init();
-    }
-
-    async init() {
-        this.tab = await ChromeService.tabsPromise();
-        this.render();
-    }
-
-    async unlockLastDomain() {
-        const lastDomain = await ChromeStorage.getPromise('last_domain');
-        await Blocker.removeBlock(lastDomain);
-        await chrome.tabs.update(this.tab.id, { url: lastDomain });
-    }
-
-    async redirectToList() {
-        await chrome.tabs.update(this.tab.id, { url: "options.html" });
-    }
-
-    render() {
-        const container = document.getElementById('lock-content');
-        if (!container) return;
-
-        container.innerHTML = `
-            <button class="btn btn-primary" id="unlock-button">Разблокировать последний домен</button>
-            <button class="btn btn-secondary" id="list-button">Перейти к списку</button>
-        `;
-
-        document.getElementById('unlock-button').addEventListener('click', () => this.unlockLastDomain());
-        document.getElementById('list-button').addEventListener('click', () => this.redirectToList());
     }
 }
 
@@ -121,16 +96,28 @@ export class ListController {
         }
 
         container.innerHTML = `
-            <ul class="list-group">
-                ${this.domains.map(domain => `
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        ${domain}
-                        <button class="btn btn-sm btn-danger unlock-button" data-domain="${domain}">
-                            Разблокировать
-                        </button>
-                    </li>
-                `).join('')}
-            </ul>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th style="width: 70%">Домен</th>
+                            <th style="width: 30%">Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${this.domains.map(domain => `
+                            <tr>
+                                <td style="vertical-align: middle; word-break: break-all;">${domain}</td>
+                                <td style="vertical-align: middle; text-align: right;">
+                                    <button class="btn btn-sm btn-danger unlock-button" data-domain="${domain}">
+                                        <span class="glyphicon glyphicon-remove"></span> Разблокировать
+                                    </button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
         `;
     }
 }
